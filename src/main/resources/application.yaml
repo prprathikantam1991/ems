@@ -1,0 +1,78 @@
+spring:
+  application:
+    name: ems
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/emsdb
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: false
+      format_sql: true
+      use_sql_comments: true
+      jdbc:
+        batch_size: 20
+        batch_versioned_data: true
+      order_inserts: true
+      order_updates: true
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+      platform: postgres
+
+  cache:
+    type: caffeine
+    cache-names:
+      - departments
+      - employees
+      - departmentEmployees
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=10m,expireAfterAccess=5m
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your-email@gmail.com
+    password: your-app-password
+    from: no-reply@ems.com
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.springframework.data.jpa: DEBUG
+
+app:
+  scheduler:
+    enabled: false
+    email:
+      recipient: admin@ems.com
+    cron: "0 0 9 * * ?"
+    rate: 300000
