@@ -2,7 +2,6 @@ package com.pradeep.ems.scheduler;
 
 import com.pradeep.ems.entity.Employee;
 import com.pradeep.ems.repository.EmployeeRepository;
-import com.pradeep.ems.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Scheduler to send daily email reports of employees added on a specific date
+ * Scheduler to check for employees added on a specific date
  */
 @Component
 @RequiredArgsConstructor
@@ -21,17 +20,13 @@ import java.util.List;
 public class EmployeeScheduler {
 
     private final EmployeeRepository employeeRepository;
-    private final EmailService emailService;
-
-    @Value("${app.scheduler.email.recipient:admin@ems.com}")
-    private String recipientEmail;
 
     @Value("${app.scheduler.enabled:true}")
     private boolean schedulerEnabled;
 
     /**
      * Scheduled task that runs daily at 9:00 AM
-     * Sends email with employees added on the previous day
+     * Checks for employees added on the previous day
      * 
      * Cron expression: second, minute, hour, day, month, weekday
      * "0 0 9 * * ?" = Every day at 9:00 AM
@@ -51,55 +46,53 @@ public class EmployeeScheduler {
             List<Employee> employees = employeeRepository.findByCreatedDate(targetDate);
 
             if (employees.isEmpty()) {
-                log.info("No employees found for date: {}. Skipping email.", targetDate);
+                log.info("No employees found for date: {}.", targetDate);
                 return;
             }
 
-            log.info("Found {} employee(s) added on {}. Sending email to: {}", 
-                employees.size(), targetDate, recipientEmail);
+            log.info("Found {} employee(s) added on {}.", 
+                employees.size(), targetDate);
 
-            emailService.sendEmployeeDetailsEmail(recipientEmail, employees);
-
-            log.info("Daily employee report sent successfully for date: {}", targetDate);
+            log.info("Daily employee report completed for date: {}", targetDate);
 
         } catch (Exception e) {
-            log.error("Error sending daily employee report", e);
+            log.error("Error processing daily employee report", e);
         }
     }
 
     /**
-     * Scheduled task that runs daily at 9:00 AM for a specific date
+     * Check for employees added on a specific date
      * This method can be called manually or scheduled for a specific date
      * 
      * @param date The date to fetch employees for
-     * @param recipientEmail The email address to send the report to
      */
-    public void sendEmployeeReportForDate(LocalDate date, String recipientEmail) {
+    public void sendEmployeeReportForDate(LocalDate date) {
         try {
             log.info("Fetching employees added on: {}", date);
 
             List<Employee> employees = employeeRepository.findByCreatedDate(date);
 
             if (employees.isEmpty()) {
-                log.info("No employees found for date: {}. Skipping email.", date);
+                log.info("No employees found for date: {}.", date);
                 return;
             }
 
-            log.info("Found {} employee(s) added on {}. Sending email to: {}", 
-                employees.size(), date, recipientEmail);
+            log.info("Found {} employee(s) added on {}.", 
+                employees.size(), date);
 
-            String subject = String.format("Employee Report for %s", 
-                date.format(java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy")));
-            
-            emailService.sendEmployeeDetailsEmail(recipientEmail, subject, employees);
-
-            log.info("Employee report sent successfully for date: {}", date);
+            log.info("Employee report completed for date: {}", date);
 
         } catch (Exception e) {
-            log.error("Error sending employee report for date: {}", date, e);
-            throw new RuntimeException("Failed to send employee report: " + e.getMessage(), e);
+            log.error("Error processing employee report for date: {}", date, e);
+            throw new RuntimeException("Failed to process employee report: " + e.getMessage(), e);
         }
     }
 }
+
+
+
+
+
+
 
 

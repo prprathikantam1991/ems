@@ -2,7 +2,6 @@ package com.pradeep.ems.scheduler;
 
 import com.pradeep.ems.entity.Employee;
 import com.pradeep.ems.repository.EmployeeRepository;
-import com.pradeep.ems.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,11 +27,7 @@ import java.util.concurrent.ScheduledFuture;
 public class EmployeeSchedulerAlternatives {
 
     private final EmployeeRepository employeeRepository;
-    private final EmailService emailService;
     private final ThreadPoolTaskScheduler taskScheduler;
-
-    @Value("${app.scheduler.email.recipient:admin@ems.com}")
-    private String recipientEmail;
 
     @Value("${app.scheduler.enabled:true}")
     private boolean schedulerEnabled;
@@ -59,7 +54,6 @@ public class EmployeeSchedulerAlternatives {
 
             if (!employees.isEmpty()) {
                 log.info("Fixed Rate: Found {} new employees", employees.size());
-                emailService.sendEmployeeDetailsEmail(recipientEmail, employees);
             }
         } catch (Exception e) {
             log.error("Fixed Rate: Error checking new employees", e);
@@ -90,7 +84,6 @@ public class EmployeeSchedulerAlternatives {
                 log.info("Fixed Delay: Processing {} employees", employees.size());
                 // Simulate processing time
                 Thread.sleep(5000);
-                emailService.sendEmployeeDetailsEmail(recipientEmail, employees);
             }
         } catch (Exception e) {
             log.error("Fixed Delay: Error processing employees", e);
@@ -122,11 +115,10 @@ public class EmployeeSchedulerAlternatives {
             if (!employees.isEmpty()) {
                 // Simulate long-running task
                 Thread.sleep(30000);  // 30 seconds
-                emailService.sendEmployeeDetailsEmail(recipientEmail, employees);
-                log.info("Async: Report sent successfully");
+                log.info("Async: Report processed successfully");
             }
         } catch (Exception e) {
-            log.error("Async: Error sending report", e);
+            log.error("Async: Error processing report", e);
         }
     }
 
@@ -186,7 +178,6 @@ public class EmployeeSchedulerAlternatives {
 
             if (!employees.isEmpty()) {
                 log.info("Dynamic: Found {} employees", employees.size());
-                emailService.sendEmployeeDetailsEmail(recipientEmail, employees);
             }
         } catch (Exception e) {
             log.error("Dynamic: Error checking employees", e);
@@ -217,11 +208,10 @@ public class EmployeeSchedulerAlternatives {
                 List<Employee> employees = employeeRepository.findByCreatedDate(yesterday);
 
                 if (!employees.isEmpty()) {
-                    log.info("Conditional: Sending report during business hours");
-                    emailService.sendEmployeeDetailsEmail(recipientEmail, employees);
+                    log.info("Conditional: Processing report during business hours");
                 }
             } catch (Exception e) {
-                log.error("Conditional: Error sending report", e);
+                log.error("Conditional: Error processing report", e);
             }
         } else {
             log.debug("Conditional: Outside business hours, skipping");
@@ -254,7 +244,6 @@ public class EmployeeSchedulerAlternatives {
 
             if (!employees.isEmpty()) {
                 log.info("Configurable: Found {} employees", employees.size());
-                emailService.sendEmployeeDetailsEmail(recipientEmail, employees);
             }
         } catch (Exception e) {
             log.error("Configurable: Error checking employees", e);
@@ -275,10 +264,10 @@ public class EmployeeSchedulerAlternatives {
                 try {
                     List<Employee> employees = employeeRepository.findByCreatedDate(targetDate);
                     if (!employees.isEmpty()) {
-                        emailService.sendEmployeeDetailsEmail(recipientEmail, employees);
+                        log.info("One-time: Found {} employees for date: {}", employees.size(), targetDate);
                     }
                 } catch (Exception e) {
-                    log.error("One-time: Error sending report", e);
+                    log.error("One-time: Error processing report", e);
                 }
             },
             executionTime
@@ -287,5 +276,11 @@ public class EmployeeSchedulerAlternatives {
         log.info("One-time report scheduled for: {}", executionTime);
     }
 }
+
+
+
+
+
+
 
 

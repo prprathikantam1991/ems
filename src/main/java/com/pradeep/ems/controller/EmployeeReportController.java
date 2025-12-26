@@ -3,7 +3,6 @@ package com.pradeep.ems.controller;
 import com.pradeep.ems.scheduler.EmployeeScheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,31 +20,24 @@ public class EmployeeReportController {
 
     private final EmployeeScheduler employeeScheduler;
 
-    @Value("${app.scheduler.email.recipient:admin@ems.com}")
-    private String defaultRecipientEmail;
-
     /**
      * Manually trigger employee report for a specific date
      * 
      * @param date The date to fetch employees for (format: yyyy-MM-dd)
-     * @param recipientEmail Optional recipient email (defaults to configured email)
      * @return Success message
      */
     @PostMapping("/employees/date/{date}")
     public ResponseEntity<String> generateReportForDate(
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(required = false) String recipientEmail) {
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         
         try {
-            String email = recipientEmail != null ? recipientEmail : defaultRecipientEmail;
-            log.info("Manual report generation requested for date: {}, recipient: {}", date, email);
+            log.info("Manual report generation requested for date: {}", date);
             
-            employeeScheduler.sendEmployeeReportForDate(date, email);
+            employeeScheduler.sendEmployeeReportForDate(date);
             
             return ResponseEntity.ok(
-                String.format("Employee report for %s sent successfully to %s", 
-                    date.format(java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy")), 
-                    email)
+                String.format("Employee report for %s processed successfully", 
+                    date.format(java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy")))
             );
         } catch (Exception e) {
             log.error("Error generating report for date: {}", date, e);
@@ -62,23 +54,13 @@ public class EmployeeReportController {
     @GetMapping("/scheduler/info")
     public ResponseEntity<SchedulerInfo> getSchedulerInfo() {
         SchedulerInfo info = new SchedulerInfo();
-        info.setDefaultRecipient(defaultRecipientEmail);
         info.setMessage("Scheduler runs daily at 9:00 AM (configurable via app.scheduler.cron)");
         return ResponseEntity.ok(info);
     }
 
     // DTO for scheduler info
     public static class SchedulerInfo {
-        private String defaultRecipient;
         private String message;
-
-        public String getDefaultRecipient() {
-            return defaultRecipient;
-        }
-
-        public void setDefaultRecipient(String defaultRecipient) {
-            this.defaultRecipient = defaultRecipient;
-        }
 
         public String getMessage() {
             return message;
@@ -89,5 +71,11 @@ public class EmployeeReportController {
         }
     }
 }
+
+
+
+
+
+
 
 

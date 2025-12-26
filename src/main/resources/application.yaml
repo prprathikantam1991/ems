@@ -46,19 +46,23 @@ spring:
     caffeine:
       spec: maximumSize=1000,expireAfterWrite=10m,expireAfterAccess=5m
 
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: your-email@gmail.com
-    password: your-app-password
-    from: no-reply@ems.com
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
+  # OAuth2 Resource Server Configuration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+          # Audience validation (optional but recommended)
+          # Uncomment and set your Google Client ID for audience validation
+          # audience: ${google.client-id}
+
+# Google OAuth2 Credentials
+# Note: Client ID is used for audience validation in Resource Server
+# Client Secret and redirect URI are not needed for Resource Server (only for OAuth2 Client)
+google:
+  client-id: 183570794532-kt0789kioogrn0ac73polvluu76m40sr.apps.googleusercontent.com
+  client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret-here}
+  redirect-uri: http://localhost:8080/login/oauth2/code/google
 
 server:
   port: 8080
@@ -72,7 +76,17 @@ logging:
 app:
   scheduler:
     enabled: false
-    email:
-      recipient: admin@ems.com
     cron: "0 0 9 * * ?"
     rate: 300000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus # Expose metrics endpoints
+  metrics:
+    export:
+      prometheus:
+        enabled: true # Enable Prometheus metrics export
+    tags:
+      application: ${spring.application.name} # Tag metrics with application name
