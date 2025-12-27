@@ -1,6 +1,52 @@
 -- Data initialization script for JPA demonstration
 -- This script demonstrates various JPA features with sample data
 
+-- Insert Roles
+INSERT INTO roles (name, description)
+VALUES
+    ('ADMIN', 'Administrator with full access to all resources'),
+    ('HR', 'Human Resources - can manage employees'),
+    ('MANAGER', 'Department Manager - can view department employees'),
+    ('USER', 'Regular user - basic access')
+ON CONFLICT DO NOTHING;
+
+-- Insert Users (Update google_id and email with your actual Google user info from JWT)
+-- To get your Google ID: Decode your JWT token and look for the "sub" claim
+-- Example users - REPLACE WITH YOUR ACTUAL GOOGLE USER DATA
+INSERT INTO users (google_id, email, name, picture, created_at, updated_at, version)
+VALUES
+    -- Admin user (replace with your Google account info)
+    ('112914472796745650281', 'pradeeprp1991@gmail.com', 'pradeep raju prathikantam', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+    -- HR user (example - replace with actual user)
+    ('HR_GOOGLE_ID_HERE', 'alice.williams@company.com', 'Alice Williams', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+    -- Manager user (example - replace with actual user)
+    ('MANAGER_GOOGLE_ID_HERE', 'diana.prince@company.com', 'Diana Prince', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0)
+ON CONFLICT DO NOTHING;
+
+-- Assign Roles to Users
+-- Admin role for first user
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id
+FROM users u, roles r
+WHERE u.email = 'pradeeprp1991@gmail.com' AND r.name = 'ADMIN'
+ON CONFLICT DO NOTHING;
+
+-- HR role for HR user
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id
+FROM users u, roles r
+WHERE u.email = 'alice.williams@company.com' AND r.name = 'HR'
+ON CONFLICT DO NOTHING;
+
+-- MANAGER role for manager user
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id
+FROM users u, roles r
+WHERE u.email = 'diana.prince@company.com' AND r.name = 'MANAGER'
+ON CONFLICT DO NOTHING;
+
+-- Note: New users logging in for the first time will automatically get USER role
+
 -- Insert Departments
 INSERT INTO departments (name, description, location, budget, head_count, created_at, updated_at, version)
 VALUES

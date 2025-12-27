@@ -1,0 +1,41 @@
+# Local Development Profile Configuration
+
+# Database Configuration for Local
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/emsdb
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+# Google OAuth2 Configuration for Local
+google:
+  client-id: 183570794532-kt0789kioogrn0ac73polvluu76m40sr.apps.googleusercontent.com
+  client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret-here}
+
+# User Service URL for Local
+user:
+  service:
+    url: http://localhost:8082
+
+# Logging for Local - More verbose
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.springframework.data.jpa: DEBUG
+
+server:
+  port: 8080
+
+app:
+  scheduler:
+    enabled: false
+

@@ -1,34 +1,29 @@
 spring:
   application:
     name: ems
+  
+  profiles:
+    active: local  # Default to local profile
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/emsdb
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
       connection-timeout: 20000
       idle-timeout: 300000
       max-lifetime: 1200000
 
   jpa:
     hibernate:
-      ddl-auto: update
-      show-sql: false
       format_sql: true
       use_sql_comments: true
-      jdbc:
-        batch_size: 20
-        batch_versioned_data: true
-      order_inserts: true
-      order_updates: true
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-
+    jdbc:
+      batch_size: 20
+      batch_versioned_data: true
+    order_inserts: true
+    order_updates: true
+    naming:
+      physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   sql:
@@ -52,41 +47,27 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: https://accounts.google.com
-          # Audience validation (optional but recommended)
-          # Uncomment and set your Google Client ID for audience validation
-          # audience: ${google.client-id}
 
-# Google OAuth2 Credentials
-# Note: Client ID is used for audience validation in Resource Server
-# Client Secret and redirect URI are not needed for Resource Server (only for OAuth2 Client)
-google:
-  client-id: 183570794532-kt0789kioogrn0ac73polvluu76m40sr.apps.googleusercontent.com
-  client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret-here}
-  redirect-uri: http://localhost:8080/login/oauth2/code/google
+# Auth Service Configuration
+auth:
+  cookie:
+    name: id_token
 
-server:
-  port: 8080
-
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
-    org.springframework.data.jpa: DEBUG
-
+# App Configuration
 app:
   scheduler:
-    enabled: false
     cron: "0 0 9 * * ?"
     rate: 300000
 
+# Management/Actuator Configuration
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus # Expose metrics endpoints
+        include: health,info,metrics,prometheus
   metrics:
     export:
       prometheus:
-        enabled: true # Enable Prometheus metrics export
+        enabled: true
     tags:
-      application: ${spring.application.name} # Tag metrics with application name
+      application: ${spring.application.name}
