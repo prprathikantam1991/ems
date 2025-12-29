@@ -3,7 +3,11 @@ package com.pradeep.ems.dto.request;
 
 //import com.pradeep.ems.validation.ValidEmail;
 //import com.pradeep.ems.validation.ValidPhone;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.math.BigDecimal;

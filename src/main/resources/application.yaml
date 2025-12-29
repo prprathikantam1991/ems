@@ -53,12 +53,6 @@ auth:
   cookie:
     name: id_token
 
-# App Configuration
-app:
-  scheduler:
-    cron: "0 0 9 * * ?"
-    rate: 300000
-
 # Management/Actuator Configuration
 management:
   endpoints:

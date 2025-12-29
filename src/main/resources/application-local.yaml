@@ -35,7 +35,4 @@ logging:
 server:
   port: 8080
 
-app:
-  scheduler:
-    enabled: false
 
