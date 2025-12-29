@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: ems
+  
+  profiles:
+    active: local  # Default to local profile
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  jpa:
+    hibernate:
+      format_sql: true
+      use_sql_comments: true
+    jdbc:
+      batch_size: 20
+      batch_versioned_data: true
+    order_inserts: true
+    order_updates: true
+    naming:
+      physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+      platform: postgres
+
+  cache:
+    type: caffeine
+    cache-names:
+      - departments
+      - employees
+      - departmentEmployees
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=10m,expireAfterAccess=5m
+
+  # OAuth2 Resource Server Configuration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+
+# Auth Service Configuration
+auth:
+  cookie:
+    name: id_token
+
+# Management/Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
